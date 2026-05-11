@@ -15,14 +15,14 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: NodePageProps): Promise<Metadata> {
   const { nodeId } = await params;
   const node = getNode(nodeId);
-  if (!node) return { title: 'Nodo non trovato' };
+  if (!node) return { title: 'Node not found' };
   return { title: `${node.label} — CityMatters Housing` };
 }
 
 const levelLabel: Record<string, string> = {
-  alto: 'Alto',
-  medio: 'Medio',
-  basso: 'Basso',
+  alto: 'High',
+  medio: 'Medium',
+  basso: 'Low',
 };
 
 const levelClass: Record<string, string> = {
@@ -40,19 +40,19 @@ export default async function NodePage({ params }: NodePageProps) {
   const isCrossTheme = node.appearances.length > 1;
 
   return (
-    <article>
+    <article className="max-w-4xl mx-auto px-6 py-8">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">{node.label}</h1>
+        <h1 className="text-3xl font-bold text-blue-900 mb-2">{node.label}</h1>
         {isCrossTheme && (
           <p className="text-orange-600 font-medium">
-            ✦ Nodo trasversale — compare in {node.appearances.length} temi diversi
+            ✦ Cross-theme node — appears in {node.appearances.length} different themes
           </p>
         )}
       </header>
 
       <section aria-labelledby="appearances-heading" className="mb-8">
         <h2 id="appearances-heading" className="text-xl font-semibold mb-4">
-          Apparizioni nei temi
+          Appearances in themes
         </h2>
         <ul className="space-y-4">
           {node.appearances.map((appearance) => {
@@ -68,7 +68,7 @@ export default async function NodePage({ params }: NodePageProps) {
                     href={`/themes/${appearance.themeId}`}
                     className="font-semibold text-blue-600 hover:underline"
                   >
-                    Tema {appearance.themeId}: {theme?.title}
+                    Theme {appearance.themeId}: {theme?.title}
                   </Link>
                   <span className={levelClass[appearance.level]}>
                     {levelLabel[appearance.level]}
@@ -76,7 +76,7 @@ export default async function NodePage({ params }: NodePageProps) {
                 </div>
                 {parentNode ? (
                   <p className="text-sm text-gray-600">
-                    Figlio di:{' '}
+                    Parent node:{' '}
                     <Link
                       href={`/nodes/${parentNode.id}`}
                       className="text-blue-600 hover:underline"
@@ -86,7 +86,7 @@ export default async function NodePage({ params }: NodePageProps) {
                   </p>
                 ) : (
                   <p className="text-sm text-gray-500">
-                    Collegato direttamente al nodo centrale del tema.
+                    Connected directly to the central node of this theme.
                   </p>
                 )}
               </li>
@@ -95,8 +95,8 @@ export default async function NodePage({ params }: NodePageProps) {
         </ul>
       </section>
 
-      <nav aria-label="Torna ai temi">
-        <p className="text-sm text-gray-500 mb-2">Esplora i temi in cui compare:</p>
+      <nav aria-label="Back to themes">
+        <p className="text-sm text-gray-500 mb-2">Explore themes where this node appears:</p>
         <ul className="flex flex-wrap gap-2">
           {node.appearances.map((appearance) => {
             const theme = getTheme(appearance.themeId);
@@ -106,7 +106,7 @@ export default async function NodePage({ params }: NodePageProps) {
                   href={`/themes/${appearance.themeId}`}
                   className="text-sm text-blue-600 hover:underline border border-blue-200 rounded px-3 py-1"
                 >
-                  ← Tema {appearance.themeId}: {theme?.title}
+                  ← Theme {appearance.themeId}: {theme?.title}
                 </Link>
               </li>
             );

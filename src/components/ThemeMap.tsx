@@ -19,11 +19,11 @@ export default function ThemeMap({ themeId }: ThemeMapProps) {
   const topLevelChildren = getNodeChildren(themeId, centralNode.id);
 
   return (
-    <section aria-label={`Mappa del tema ${theme.title}`}>
-      <div className="mb-4 p-4 bg-blue-700 text-white rounded inline-block">
-        <span className="text-xs uppercase tracking-wide opacity-75">Nodo centrale</span>
+    <section aria-label={`Concept map for theme ${theme.title}`}>
+      <div className="mb-4 p-4 bg-blue-900 text-white rounded inline-block">
+        <span className="text-xs uppercase tracking-wide opacity-75">Central node</span>
         <h2 className="text-2xl font-bold">{centralNode.label}</h2>
-        <span className="text-xs opacity-75">[Alto]</span>
+        <span className="text-xs opacity-75">[High]</span>
       </div>
 
       {topLevelChildren.length > 0 && (

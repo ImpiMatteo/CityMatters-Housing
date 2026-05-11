@@ -16,8 +16,8 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: ThemePageProps): Promise<Metadata> {
   const { themeId } = await params;
   const theme = getTheme(themeId as ThemeId);
-  if (!theme) return { title: 'Tema non trovato' };
-  return { title: `Tema ${theme.id}: ${theme.title} — CityMatters Housing` };
+  if (!theme) return { title: 'Theme not found' };
+  return { title: `Theme ${theme.id}: ${theme.title} — CityMatters Housing` };
 }
 
 export default async function ThemePage({ params }: ThemePageProps) {
@@ -31,10 +31,10 @@ export default async function ThemePage({ params }: ThemePageProps) {
   if (!theme) notFound();
 
   return (
-    <article>
+    <article className="max-w-4xl mx-auto px-6 py-8">
       <header className="mb-8">
-        <p className="text-sm text-gray-500 uppercase tracking-wide mb-1">Tema {theme.id}</p>
-        <h1 className="text-3xl font-bold mb-2">{theme.title}</h1>
+        <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Theme {theme.id}</p>
+        <h1 className="text-3xl font-bold text-blue-900 mb-2">{theme.title}</h1>
         <p className="text-gray-600">{theme.description}</p>
       </header>
 

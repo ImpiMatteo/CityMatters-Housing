@@ -1,55 +1,36 @@
+import Link from 'next/link';
 import { themes } from '@/data';
-import ThemeCard from '@/components/ThemeCard';
-import { getCrossThemeNodes } from '@/lib';
+import InteractiveMap from '@/components/map/InteractiveMap';
 
 export default function HomePage() {
-  const crossThemeNodes = getCrossThemeNodes();
-
   return (
-    <div>
-      <header className="mb-10">
-        <h1 className="text-3xl font-bold mb-2">CityMatters Housing</h1>
-        <p className="text-gray-600 max-w-2xl">
-          Tre mappe concettuali che esplorano le problematiche abitative urbane: dalla sorveglianza
-          degli anziani all&apos;efficienza energetica, fino ai nuovi modelli di convivenza e ai
-          confini sociali della casa.
-        </p>
+    <div className="h-full flex flex-col">
+      <header className="shrink-0 px-6 py-3 border-b border-gray-200 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-blue-900 leading-tight">CityMatters Housing</h1>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Three concept maps on urban housing challenges — hover a node to highlight its connections
+          </p>
+        </div>
+        <nav className="hidden sm:flex items-center gap-4">
+          {themes.map((theme) => (
+            <Link
+              key={theme.id}
+              href={`/themes/${theme.id}`}
+              className="text-xs text-blue-600 hover:underline"
+            >
+              {theme.title} →
+            </Link>
+          ))}
+        </nav>
       </header>
 
-      <section aria-labelledby="themes-heading" className="mb-12">
-        <h2 id="themes-heading" className="text-xl font-semibold mb-4">
-          Scegli un tema
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-3">
-          {themes.map((theme) => (
-            <ThemeCard key={theme.id} theme={theme} />
-          ))}
-        </div>
-      </section>
-
-      <section aria-labelledby="cross-heading">
-        <h2 id="cross-heading" className="text-xl font-semibold mb-2">
-          Nodi trasversali ({crossThemeNodes.length})
-        </h2>
-        <p className="text-sm text-gray-500 mb-3">
-          Questi concetti compaiono in più di un tema, evidenziando connessioni tra le mappe.
+      <div className="flex-1 min-h-0 relative">
+        <InteractiveMap />
+        <p className="absolute bottom-3 right-3 text-xs text-gray-400 pointer-events-none select-none">
+          Scroll to zoom · Drag to pan
         </p>
-        <ul className="flex flex-wrap gap-2">
-          {crossThemeNodes.map((node) => (
-            <li key={node.id}>
-              <a
-                href={`/nodes/${node.id}`}
-                className="text-sm border border-orange-300 text-orange-700 rounded px-2 py-1 hover:bg-orange-50"
-              >
-                {node.label}
-                <span className="ml-1 text-xs text-gray-400">
-                  (temi: {node.appearances.map((a) => a.themeId).join(', ')})
-                </span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </section>
+      </div>
     </div>
   );
 }

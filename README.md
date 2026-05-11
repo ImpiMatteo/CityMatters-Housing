@@ -1,46 +1,51 @@
 # CityMatters Housing
 
-Sito web interattivo che presenta tre mappe concettuali su tematiche abitative urbane: **Monitoring** (sorveglianza e cura degli anziani), **Energy class** (efficienza energetica e reddito), **Boundaries** (nuovi modelli familiari e confini sociali). I nodi trasversali tra le mappe evidenziano le connessioni concettuali tra i temi.
+An interactive concept map exploring urban housing challenges across three themes: **Monitoring** (care and surveillance of elderly people living alone), **Energy class** (energy efficiency, income, and housing adaptation), and **Boundaries** (new family models, co-housing, and social connections). Cross-theme nodes are highlighted to reveal conceptual links between maps.
 
-## Stack tecnologico
+## Tech stack
 
-- **Next.js 14** — App Router, Static Site Generation
+- **Next.js 14** — App Router, fully static (SSG)
 - **TypeScript** (strict mode)
 - **Tailwind CSS v4**
-- **Node.js 22 LTS**
+- **React Flow v12** (`@xyflow/react`) — interactive map canvas
+- **dagre** (`@dagrejs/dagre`) — automatic hierarchical layout
+- **Vercel** — zero-config deploy target
 
-## Comandi
+## Local setup
 
 ```bash
-npm install       # installa le dipendenze
-npm run dev       # avvia il server di sviluppo su http://localhost:3000
-npm run build     # build di produzione
-npm run lint      # linting ESLint
-npm run format    # formattazione Prettier
+npm install
+npm run dev      # http://localhost:3000
+npm run build    # production build check
+npm run lint
+npm run format
 ```
 
-## Struttura cartelle (breve)
+## Project structure
 
 ```
 src/
 ├── app/
-│   ├── page.tsx                  # Homepage — scelta dei tre temi
-│   ├── themes/[themeId]/page.tsx # Pagina del tema con gerarchia nodi
-│   └── nodes/[nodeId]/page.tsx   # Dettaglio di un singolo nodo
+│   ├── page.tsx                       # Homepage — full-screen interactive map
+│   ├── themes/[themeId]/page.tsx      # Theme page with node hierarchy
+│   └── nodes/[nodeId]/page.tsx        # Node detail with all appearances
 ├── components/
+│   ├── map/
+│   │   ├── InteractiveMap.tsx         # React Flow canvas (client component)
+│   │   ├── MapHoverContext.tsx        # Hover state context
+│   │   ├── buildMapData.ts            # dagre layout → RF nodes/edges
+│   │   ├── nodes/                     # CentralNode, MediumNode, LowNode
+│   │   └── edges/ThemeEdge.tsx        # Custom edge with hover highlight
 │   ├── Navigation.tsx
-│   ├── ThemeCard.tsx
-│   ├── NodeItem.tsx              # Rendering ricorsivo con figli
+│   ├── NodeItem.tsx
 │   └── ThemeMap.tsx
-├── data/
-│   ├── themes.ts                 # Definizione dei 3 temi
-│   └── nodes.ts                  # Tutti i nodi con apparizioni e gerarchie
-├── lib/                          # Helper: getTheme, getNode, getNodeRelations
-└── types/                        # Tipi TypeScript condivisi
+├── data/                              # themes.ts, nodes.ts — source of truth
+├── lib/                               # getTheme, getNode, getNodeRelations
+└── types/                             # Shared TypeScript types
 ```
 
-## Stato attuale
+## Current status
 
-**Fase 1 — struttura funzionale, design da definire.**
+**Phase 2 — Frontend & interactive map implemented.** Visual design and content refinements ongoing.
 
-Tutte le pagine sono navigabili e i dati sono completamente modellati da `mappe_temi.md`. Il visual design (colori, tipografia, layout avanzato) sarà definito nella fase successiva.
+The homepage features a full-screen interactive concept map with three theme clusters (dagre TB layout). Hovering a node highlights it in red and highlights its direct edge connections. All 45 nodes and 21 cross-theme nodes are visible and navigable.

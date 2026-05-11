@@ -6,7 +6,7 @@ export const themes: Theme[] = [
     title: 'Monitoring',
     slug: 'monitoring',
     description:
-      'Sorveglianza e cura delle persone anziane che vivono sole, tra tecnologia, assistenza e legami di quartiere.',
+      'Monitoring and care of elderly people living alone, between technology, assistance, and neighbourhood ties.',
     centralNodeId: 'monitoring',
   },
   {
@@ -14,7 +14,7 @@ export const themes: Theme[] = [
     title: 'Energy class',
     slug: 'energy-class',
     description:
-      "Efficienza energetica, costo della vita e adeguamento abitativo in relazione al reddito e alle abitudini.",
+      'Energy efficiency, cost of living, and housing adaptation in relation to income and changing habits.',
     centralNodeId: 'energy-class',
   },
   {
@@ -22,7 +22,7 @@ export const themes: Theme[] = [
     title: 'Boundaries',
     slug: 'boundaries',
     description:
-      'Confini fisici e sociali della casa: nuovi modelli familiari, co-housing e reti di connessione urbana.',
+      'Physical and social boundaries of housing: new family models, co-housing, and urban connection networks.',
     centralNodeId: 'boundaries',
   },
 ];

@@ -3,9 +3,9 @@ import type { Node, NodeAppearance, ThemeId } from '@/types';
 import { getNodeChildren } from '@/lib';
 
 const levelLabel: Record<string, string> = {
-  alto: 'Alto',
-  medio: 'Medio',
-  basso: 'Basso',
+  alto: 'High',
+  medio: 'Medium',
+  basso: 'Low',
 };
 
 const levelClass: Record<string, string> = {
@@ -40,8 +40,8 @@ export default function NodeItem({ node, appearance, themeId, depth = 0 }: NodeI
           {levelLabel[appearance.level]}
         </span>
         {isCrossTheme && (
-          <span className="text-xs text-orange-600 font-medium" title="Nodo trasversale">
-            ✦ trasversale
+          <span className="text-xs text-orange-600 font-medium" title="Cross-theme node">
+            ✦ cross-theme
           </span>
         )}
       </div>

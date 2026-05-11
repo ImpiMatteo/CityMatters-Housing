@@ -4,7 +4,7 @@ import Navigation from '@/components/Navigation';
 
 export const metadata: Metadata = {
   title: 'CityMatters Housing',
-  description: 'Mappe concettuali su tematiche abitative urbane: Monitoring, Energy class, Boundaries.',
+  description: 'An interactive concept map exploring urban housing challenges: Monitoring, Energy class, and Boundaries.',
 };
 
 export default function RootLayout({
@@ -13,10 +13,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="it">
-      <body className="bg-gray-50 text-gray-900">
+    <html lang="en">
+      <body className="flex flex-col h-screen bg-white text-gray-900 overflow-hidden">
         <Navigation />
-        <main className="max-w-4xl mx-auto px-6 py-8">{children}</main>
+        <main className="flex-1 min-h-0 overflow-y-auto">{children}</main>
       </body>
     </html>
   );
