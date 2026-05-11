@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import Navigation from '@/components/Navigation';
 
 export const metadata: Metadata = {
-  title: 'CityMatters Housing',
+  title: 'Housing and urban models',
   description: 'An interactive concept map exploring urban housing challenges: Monitoring, Energy class, and Boundaries.',
 };
 
@@ -15,7 +14,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="flex flex-col h-screen bg-white text-gray-900 overflow-hidden">
-        <Navigation />
         <main className="flex-1 min-h-0 overflow-y-auto">{children}</main>
       </body>
     </html>

@@ -21,3 +21,20 @@ export interface Node {
   label: string;
   appearances: NodeAppearance[];
 }
+
+export interface MapNode {
+  id: string;
+  label: string;
+  level: ImportanceLevel;
+  themeIds: ThemeId[];
+  isThemeCenter: boolean;
+  centerThemeId?: ThemeId;
+}
+
+export interface MapEdge {
+  id: string;
+  source: string;
+  target: string;
+  themeId: ThemeId;
+  isMainBranch: boolean;
+}

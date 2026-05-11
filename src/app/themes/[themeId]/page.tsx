@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import type { Metadata } from 'next';
 import { themes } from '@/data';
 import { getTheme } from '@/lib';
@@ -32,6 +33,9 @@ export default async function ThemePage({ params }: ThemePageProps) {
 
   return (
     <article className="max-w-4xl mx-auto px-6 py-8">
+      <nav className="mb-6">
+        <Link href="/" className="text-sm text-blue-600 hover:underline">← Back to map</Link>
+      </nav>
       <header className="mb-8">
         <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Theme {theme.id}</p>
         <h1 className="text-3xl font-bold text-blue-900 mb-2">{theme.title}</h1>
