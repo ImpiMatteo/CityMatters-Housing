@@ -22,7 +22,13 @@ function ThemeEdge({
   const { hoveredNodeId } = useMapHover();
   const isHighlighted =
     hoveredNodeId !== null && (hoveredNodeId === source || hoveredNodeId === target);
-  const isMainBranch = data?.isMainBranch ?? false;
+
+  const strokeLevel = data?.strokeLevel ?? 3;
+  const isSecondary = data?.isSecondary === true;
+
+  const strokeWidth = strokeLevel === 1 ? 4.5 : strokeLevel === 2 ? 2.5 : 1.5;
+  const stroke = isHighlighted ? '#e63946' : '#1a2744';
+  const opacity = isHighlighted ? 1 : isSecondary ? 0.3 : strokeLevel === 1 ? 0.9 : 0.7;
 
   const [edgePath] = getBezierPath({
     sourceX,
@@ -38,9 +44,11 @@ function ThemeEdge({
       id={id}
       path={edgePath}
       style={{
-        stroke: isHighlighted ? '#dc2626' : '#1e3a8a',
-        strokeWidth: isMainBranch ? 3 : 1.5,
-        transition: 'stroke 150ms ease',
+        stroke,
+        strokeWidth,
+        opacity,
+        transition: 'stroke 150ms ease, opacity 150ms ease',
+        strokeDasharray: isSecondary && !isHighlighted ? '5 4' : undefined,
       }}
     />
   );

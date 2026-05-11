@@ -2,21 +2,17 @@
 
 import '@xyflow/react/dist/style.css';
 import { useMemo, useState } from 'react';
-import {
-  ReactFlow,
-  Background,
-  type NodeTypes,
-  type EdgeTypes,
-} from '@xyflow/react';
+import { ReactFlow, type NodeTypes, type EdgeTypes } from '@xyflow/react';
 import { buildMapData } from './buildMapData';
 import { MapHoverContext } from './MapHoverContext';
+import RootNode from './nodes/RootNode';
 import CentralNode from './nodes/CentralNode';
 import MediumNode from './nodes/MediumNode';
 import LowNode from './nodes/LowNode';
 import ThemeEdge from './edges/ThemeEdge';
 
-// Defined at module level so React Flow doesn't re-register on every render
 const nodeTypes: NodeTypes = {
+  root: RootNode,
   central: CentralNode,
   medium: MediumNode,
   low: LowNode,
@@ -34,8 +30,9 @@ export default function InteractiveMap() {
     <MapHoverContext.Provider value={{ hoveredNodeId }}>
       <div
         className="w-full h-full"
+        style={{ background: '#f5f0e4' }}
         role="img"
-        aria-label="Interactive concept map showing three urban housing themes: Monitoring, Energy class, and Boundaries"
+        aria-label="Interactive concept map: three interconnected urban housing themes"
       >
         <ReactFlow
           defaultNodes={nodes}
@@ -43,7 +40,7 @@ export default function InteractiveMap() {
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           fitView
-          fitViewOptions={{ padding: 0.08 }}
+          fitViewOptions={{ padding: 0.06 }}
           panOnDrag
           zoomOnScroll
           zoomOnPinch
@@ -53,9 +50,8 @@ export default function InteractiveMap() {
           onNodeMouseEnter={(_, node) => setHoveredNodeId(node.id)}
           onNodeMouseLeave={() => setHoveredNodeId(null)}
           proOptions={{ hideAttribution: true }}
-        >
-          <Background color="#e2e8f0" gap={32} size={1} />
-        </ReactFlow>
+          style={{ background: '#f5f0e4' }}
+        />
       </div>
     </MapHoverContext.Provider>
   );

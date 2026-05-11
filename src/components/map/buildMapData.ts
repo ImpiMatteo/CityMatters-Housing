@@ -1,29 +1,14 @@
 import Dagre from '@dagrejs/dagre';
 import type { Node as RFNode, Edge as RFEdge } from '@xyflow/react';
 import { nodes as dataNodes, themes } from '@/data';
-import type { ImportanceLevel, ThemeId } from '@/types';
+import type { ImportanceLevel, ThemeId, NodeAppearance } from '@/types';
 
-type NodeType = 'central' | 'medium' | 'low';
+// ── Types ────────────────────────────────────────────────────────────────────
 
-const levelToType: Record<ImportanceLevel, NodeType> = {
-  alto: 'central',
-  medio: 'medium',
-  basso: 'low',
-};
-
-// Dagre spacing dimensions (slightly larger than visual for breathing room)
-const dagreDims: Record<ImportanceLevel, { width: number; height: number }> = {
-  alto: { width: 160, height: 160 },
-  medio: { width: 170, height: 50 },
-  basso: { width: 150, height: 40 },
-};
-
-// React Flow visual dimensions
-const rfDims: Record<ImportanceLevel, { width: number; height: number }> = {
-  alto: { width: 140, height: 140 },
-  medio: { width: 150, height: 36 },
-  basso: { width: 130, height: 24 },
-};
+export interface RootNodeData extends Record<string, unknown> {
+  number: ThemeId;
+  themeId: ThemeId;
+}
 
 export interface MapNodeData extends Record<string, unknown> {
   label: string;
@@ -33,119 +18,143 @@ export interface MapNodeData extends Record<string, unknown> {
 }
 
 export interface MapEdgeData extends Record<string, unknown> {
-  isMainBranch: boolean;
+  strokeLevel: 1 | 2 | 3;  // 1 = root→central (thickest), 2 = central→child, 3 = rest
+  isSecondary: boolean;     // cross-theme edge rendered lighter
 }
 
-export type MapRFNode = RFNode<MapNodeData, NodeType>;
-export type MapRFEdge = RFEdge<MapEdgeData, 'theme'>;
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
-interface PositionedNode {
-  rfId: string;
-  nodeId: string;
-  label: string;
-  level: ImportanceLevel;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+const levelPriority: Record<ImportanceLevel, number> = { alto: 3, medio: 2, basso: 1 };
+
+function getPrimaryAppearance(appearances: NodeAppearance[]): NodeAppearance {
+  return appearances.reduce((best, curr) =>
+    levelPriority[curr.level] > levelPriority[best.level] ? curr : best
+  );
 }
 
-interface EdgeEntry {
-  source: string;
-  target: string;
-  isMainBranch: boolean;
-}
+const levelToType: Record<ImportanceLevel, string> = {
+  alto: 'central',
+  medio: 'medium',
+  basso: 'low',
+};
 
-function layoutCluster(themeId: ThemeId, centralNodeId: string) {
+// Dimensions passed to dagre (used for spacing calculations)
+const dagreDims = {
+  root:    { width: 90,  height: 90  },
+  alto:    { width: 155, height: 58  },
+  medio:   { width: 150, height: 48  },
+  basso:   { width: 135, height: 36  },
+};
+
+// React Flow visual dimensions (for edge anchor calculation)
+const rfDims = {
+  root:    { width: 76,  height: 76  },
+  alto:    { width: 130, height: 48  },
+  medio:   { width: 130, height: 36  },
+  basso:   { width: 115, height: 24  },
+};
+
+// ── Main build function ───────────────────────────────────────────────────────
+
+export function buildMapData(): {
+  nodes: RFNode<Record<string, unknown>>[];
+  edges: RFEdge<MapEdgeData>[];
+} {
   const g = new Dagre.graphlib.Graph()
-    .setGraph({ rankdir: 'TB', nodesep: 60, ranksep: 80, marginx: 20, marginy: 20 })
+    .setGraph({ rankdir: 'TB', nodesep: 55, ranksep: 95, marginx: 50, marginy: 50 })
     .setDefaultEdgeLabel(() => ({}));
 
-  type AppEntry = {
-    rfId: string;
-    nodeId: string;
-    label: string;
-    level: ImportanceLevel;
-    parentNodeId: string | null;
-  };
+  const rfNodes: RFNode<Record<string, unknown>>[] = [];
+  const rfEdges: RFEdge<MapEdgeData>[] = [];
+  const centralNodeIds = new Set(themes.map((t) => t.centralNodeId));
 
-  const appearances: AppEntry[] = [];
-
-  for (const node of dataNodes) {
-    const app = node.appearances.find((a) => a.themeId === themeId);
-    if (!app) continue;
-    const rfId = `${themeId}-${node.id}`;
-    appearances.push({ rfId, nodeId: node.id, label: node.label, level: app.level, parentNodeId: app.parentNodeId });
-    const d = dagreDims[app.level];
-    g.setNode(rfId, { width: d.width, height: d.height });
-  }
-
-  const rfIdSet = new Set(appearances.map((a) => a.rfId));
-  const centralRfId = `${themeId}-${centralNodeId}`;
-  const edges: EdgeEntry[] = [];
-
-  for (const app of appearances) {
-    if (!app.parentNodeId) continue;
-    const srcRfId = `${themeId}-${app.parentNodeId}`;
-    if (!rfIdSet.has(srcRfId)) continue;
-    g.setEdge(srcRfId, app.rfId);
-    edges.push({ source: srcRfId, target: app.rfId, isMainBranch: srcRfId === centralRfId });
-  }
-
-  Dagre.layout(g);
-
-  let minX = Infinity;
-  let maxX = -Infinity;
-  let minY = Infinity;
-
-  const positioned: PositionedNode[] = appearances.map((app) => {
-    const pos = g.node(app.rfId);
-    const d = rfDims[app.level];
-    const x = (pos?.x ?? 0) - d.width / 2;
-    const y = (pos?.y ?? 0) - d.height / 2;
-    minX = Math.min(minX, x);
-    maxX = Math.max(maxX, x + d.width);
-    minY = Math.min(minY, y);
-    return { rfId: app.rfId, nodeId: app.nodeId, label: app.label, level: app.level, x, y, width: d.width, height: d.height };
-  });
-
-  return { positioned, edges, clusterWidth: maxX - minX, minX, minY };
-}
-
-export function buildMapData(): { nodes: MapRFNode[]; edges: MapRFEdge[] } {
-  const rfNodes: MapRFNode[] = [];
-  const rfEdges: MapRFEdge[] = [];
-  const CLUSTER_GAP = 250;
-  let offsetX = 0;
-
+  // ── 1. Root nodes (numbered circles 1 / 2 / 3) ───────────────────────────
   for (const theme of themes) {
-    const { positioned, edges, clusterWidth, minX, minY } = layoutCluster(
-      theme.id as ThemeId,
-      theme.centralNodeId
-    );
+    const rootId = `root-${theme.id}`;
+    g.setNode(rootId, dagreDims.root);
 
-    for (const n of positioned) {
-      rfNodes.push({
-        id: n.rfId,
-        type: levelToType[n.level],
-        position: { x: n.x - minX + offsetX, y: n.y - minY },
-        data: { label: n.label, themeId: theme.id as ThemeId, nodeId: n.nodeId, level: n.level },
-        width: n.width,
-        height: n.height,
-      } as MapRFNode);
-    }
+    rfNodes.push({
+      id: rootId,
+      type: 'root',
+      position: { x: 0, y: 0 },
+      data: { number: theme.id as ThemeId, themeId: theme.id as ThemeId } satisfies RootNodeData,
+      width: rfDims.root.width,
+      height: rfDims.root.height,
+    });
 
-    for (const e of edges) {
+    // Thick trunk edge: root → central theme node
+    g.setEdge(rootId, theme.centralNodeId);
+    rfEdges.push({
+      id: `${rootId}→${theme.centralNodeId}`,
+      source: rootId,
+      target: theme.centralNodeId,
+      type: 'theme',
+      data: { strokeLevel: 1, isSecondary: false },
+    });
+  }
+
+  // ── 2. All unique content nodes ───────────────────────────────────────────
+  for (const node of dataNodes) {
+    const primary = getPrimaryAppearance(node.appearances);
+    const dims = dagreDims[primary.level];
+    const vDims = rfDims[primary.level];
+
+    g.setNode(node.id, dims);
+
+    rfNodes.push({
+      id: node.id,
+      type: levelToType[primary.level],
+      position: { x: 0, y: 0 },
+      data: {
+        label: node.label,
+        themeId: primary.themeId,
+        nodeId: node.id,
+        level: primary.level,
+      } satisfies MapNodeData,
+      width: vDims.width,
+      height: vDims.height,
+    });
+
+    // Primary parent edge (included in dagre layout)
+    if (primary.parentNodeId) {
+      const isMainBranch = centralNodeIds.has(primary.parentNodeId);
+      g.setEdge(primary.parentNodeId, node.id);
       rfEdges.push({
-        id: `${e.source}→${e.target}`,
-        source: e.source,
-        target: e.target,
+        id: `${primary.parentNodeId}→${node.id}`,
+        source: primary.parentNodeId,
+        target: node.id,
         type: 'theme',
-        data: { isMainBranch: e.isMainBranch },
+        data: { strokeLevel: isMainBranch ? 2 : 3, isSecondary: false },
       });
     }
+    // Central nodes (parentNodeId: null) are already connected via root→central
 
-    offsetX += clusterWidth + CLUSTER_GAP;
+    // Secondary edges: cross-theme connections, displayed but not used by dagre
+    for (const app of node.appearances) {
+      if (app === primary) continue;
+      if (!app.parentNodeId) continue;
+      rfEdges.push({
+        id: `${app.parentNodeId}→${node.id}:x`,
+        source: app.parentNodeId,
+        target: node.id,
+        type: 'theme',
+        data: { strokeLevel: 3, isSecondary: true },
+      });
+    }
+  }
+
+  // ── 3. Run dagre layout ───────────────────────────────────────────────────
+  Dagre.layout(g);
+
+  for (const rfNode of rfNodes) {
+    const pos = g.node(rfNode.id);
+    if (!pos) continue;
+    const w = (rfNode.width ?? 100) as number;
+    const h = (rfNode.height ?? 40) as number;
+    rfNode.position = {
+      x: (pos.x ?? 0) - w / 2,
+      y: (pos.y ?? 0) - h / 2,
+    };
   }
 
   return { nodes: rfNodes, edges: rfEdges };

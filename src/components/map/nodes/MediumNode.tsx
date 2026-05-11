@@ -21,11 +21,12 @@ function MediumNode({ id, data }: NodeProps<MediumNodeType>) {
       <div
         aria-label={data.label}
         className={[
-          'px-3 py-1.5 rounded-full border-2 text-xs text-center',
-          'cursor-default transition-colors duration-150 whitespace-nowrap',
+          'px-3.5 py-1.5 rounded-full border whitespace-nowrap',
+          'text-xs cursor-default select-none text-center',
+          'transition-colors duration-150',
           isHovered
-            ? 'border-red-600 text-red-600 bg-white'
-            : 'border-blue-900 text-blue-900 bg-white',
+            ? 'border-[#e63946] text-[#e63946] bg-[#f5f0e4]'
+            : 'border-[#1a2744] text-[#1a2744] bg-[#f5f0e4]',
         ].join(' ')}
       >
         {data.label}
